@@ -52,10 +52,10 @@ def render_ascii_pet(spesies: str, tahap: str) -> list:
     seni = ASCII_PET.get(spesies, ASCII_PET["Slime"])
     if tahap == "Telur":
         return [
-            "   _____  ",
-            "  /     \\ ",
-            " |  🥚   |",
-            "  \\_____/ ",
+            "   _____   ",
+            "  /     \\  ",
+            " |   O   |  ",
+            "  \\_____/  ",
         ]
     return seni
 
@@ -64,7 +64,7 @@ def tampilkan_status(peliharaan: Peliharaan, pemain: Pemain, nama_periode: str):
     seni = render_ascii_pet(peliharaan.spesies, peliharaan.tahap_evolusi)
 
     print("╔" + "═"*48 + "╗")
-    print("║" + "  🐾  TAMAGOTCHI CLI".center(48) + "║")
+    print("║" + "  🐾  TAMAGOTCHI CLI".center(47) + "║")
     print("╠" + "═"*48 + "╣")
 
     for baris in seni:
@@ -74,29 +74,29 @@ def tampilkan_status(peliharaan: Peliharaan, pemain: Pemain, nama_periode: str):
     print(f"║  Nama     : {peliharaan.nama:<35}║")
     print(f"║  Spesies  : {peliharaan.spesies:<35}║")
     print(f"║  Evolusi  : {peliharaan.tahap_evolusi:<35}║")
-    print(f"║  Usia     : {peliharaan.usia:.1f} hari{'':<29}║")
+    print(f"║  Usia     : {peliharaan.usia:.1f} hari{'':<27}║")
     print(f"║  Periode  : {nama_periode:<35}║")
     print("╠" + "═"*48 + "╣")
 
     stats = [
         ("🍖 Lapar   ", peliharaan.kelaparan, peliharaan.status_kelaparan()),
         ("😊 Senang  ", peliharaan.kesenangan, peliharaan.status_mood()),
-        ("❤️  Sehat  ", peliharaan.kesehatan,  peliharaan.status_kesehatan()),
+        ("❤️  Sehat   ", peliharaan.kesehatan,  peliharaan.status_kesehatan()),
         ("⚡ Energi  ", peliharaan.energi,     f"{peliharaan.energi:.0f}"),
     ]
 
     for label, nilai, teks_status in stats:
         bilah = bilah_progres(nilai)
         indik = warna_status(nilai)
-        print(f"║  {label}: {bilah} {indik} {teks_status:<8}║")
+        print(f"║  {label}: {bilah} {indik} {teks_status:<17}║")
 
     skor = peliharaan.hitung_skor_kebugaran()
     kategori = peliharaan.kategori_skor()
     print("╠" + "═"*48 + "╣")
-    print(f"║  🧮 Skor Kebugaran: {skor:.1f} / 100  ({kategori:<10})║")
+    print(f"║  🧮 Skor Kebugaran: {skor:.1f} / 100  ({kategori:<1})   ║")
 
     print("╠" + "═"*48 + "╣")
-    print(f"║  💰 Koin : {pemain.koin:<37}║")
+    print(f"║  💰 Koin : {pemain.koin:<36}║")
     print("╚" + "═"*48 + "╝")
 
 def tampilkan_menu_utama():
@@ -118,7 +118,7 @@ def tampilkan_riwayat(riwayat: Stack):
     while True:
         bersihkan_layar()
         print("╔" + "═"*48 + "╗")
-        print("║" + "  📜  RIWAYAT AKSI (Stack / log)".center(48) + "║")
+        print("║" + "  📜  RIWAYAT AKSI (Stack / log)".center(47) + "║")
         print("╠" + "═"*48 + "╣")
         daftar_aksi = riwayat.ke_list()
         if not daftar_aksi:
@@ -128,7 +128,7 @@ def tampilkan_riwayat(riwayat: Stack):
                 baris = f"  {i:>2}. {aksi}"
                 print("║" + baris[:48].ljust(48) + "║")
         print("╠" + "═"*48 + "╣")
-        print("║  [H] Hapus entri log terakhir  [0] Kembali".ljust(48) + "║")
+        print("║  [H] Hapus entri log terakhir  [0] Kembali".ljust(49) + "║")
         print("║" + "  (Hanya teks log; koin/stat tidak berubah)".ljust(48) + "║")
         print("╚" + "═"*48 + "╝")
         pilih = input("\n  > ").strip().upper()
@@ -150,13 +150,13 @@ def tampilkan_info_pemain(pemain: Pemain, peliharaan: Peliharaan,
                          graph_evolusi=None, pohon_evolusi=None):
     bersihkan_layar()
     print("╔" + "═"*48 + "╗")
-    print("║" + "  👤  INFO PEMAIN".center(48) + "║")
+    print("║" + "  👤  INFO PEMAIN".center(47) + "║")
     print("╠" + "═"*48 + "╣")
     print(f"║  Nama pemain  : {pemain.nama_pemain:<31}║")
     print(f"║  Total koin   : {pemain.koin:<31}║")
     print(f"║  Hari bertahan: {pemain.total_hari_hidup:<31}║")
     print("╠" + "═"*48 + "╣")
-    print("║" + "  🏅  Badge".ljust(48) + "║")
+    print("║" + "  🏅  Badge".ljust(47) + "║")
     if pemain.daftar_badge:
         for badge in bubble_sort_str(list(pemain.daftar_badge), "naik"):
             print("║" + f"    • {badge}".ljust(48) + "║")
@@ -207,7 +207,7 @@ def tampilkan_layar_kematian(peliharaan: Peliharaan, pemain: Pemain) -> bool:
 def tampilkan_layar_sambutan():
     bersihkan_layar()
     print("╔" + "═"*48 + "╗")
-    print("║" + "  🐾  SELAMAT DATANG DI TAMAGOTCHI CLI".center(48) + "║")
+    print("║" + "  🐾  SELAMAT DATANG DI TAMAGOTCHI CLI".center(47) + "║")
     print("╚" + "═"*48 + "╝")
 
 
@@ -228,7 +228,7 @@ def pilih_spesies() -> str:
 def tampilkan_riwayat_makanan(peliharaan: Peliharaan):
     bersihkan_layar()
     print("╔" + "═"*48 + "╗")
-    print("║" + "  🍽️  RIWAYAT MAKANAN (Single Linked List)".center(48) + "║")
+    print("║" + "  🍽️  RIWAYAT MAKANAN (Single Linked List)".center(49) + "║")
     print("╠" + "═"*48 + "╣")
     daftar = peliharaan.riwayat_makanan.ke_list()
     if not daftar:
@@ -245,7 +245,7 @@ def tampilkan_navigasi_histori(peliharaan: Peliharaan):
         bersihkan_layar()
         hari_ke, snapshot = peliharaan.histori_hari.info_kursor()
         print("╔" + "═"*48 + "╗")
-        print("║" + "  📅  HISTORI HARI (Double Linked List)".center(48) + "║")
+        print("║" + "  📅  HISTORI HARI (Double Linked List)".center(47) + "║")
         print("╠" + "═"*48 + "╣")
         if snapshot is None:
             print("║" + "  Belum ada histori hari.".ljust(48) + "║")
@@ -261,7 +261,8 @@ def tampilkan_navigasi_histori(peliharaan: Peliharaan):
             print(f"║    Energi    : {snapshot.get('energi', 0):.1f}".ljust(48) + "║")
             print(f"║    Evolusi   : {snapshot.get('tahap_evolusi', '?')}".ljust(48) + "║")
         print("╠" + "═"*48 + "╣")
-        print("║  [A] Awal  [M] Mundur  [J] Maju  [AK] Akhir  [0] Kembali".ljust(48) + "║")
+        print("║  [A] Awal  [M] Mundur  [J] Maju".ljust(49) + "║")
+        print("║  [AK] Akhir  [0] Kembali".ljust(49) + "║")
         print("╚" + "═"*48 + "╝")
         pilih = input("  > ").strip().upper()
         if pilih == "A":
@@ -298,7 +299,7 @@ def tampilkan_leaderboard(peliharaan_sekarang: Peliharaan, semua_pet: list = Non
     
     bersihkan_layar()
     print("╔" + "═"*48 + "╗")
-    print("║" + "  🏆  LEADERBOARD (Bubble Sort)".center(48) + "║")
+    print("║" + "  🏆  LEADERBOARD (Bubble Sort)".center(47) + "║")
     print("╠" + "═"*48 + "╣")
     
     print("\n  Urutan berdasarkan usia (tertua ke termuda):")
@@ -319,7 +320,7 @@ def tampilkan_pencarian_item():
     """Menu linear search untuk mencari item di toko berdasarkan nama."""
     bersihkan_layar()
     print("╔" + "═"*48 + "╗")
-    print("║" + "  🔍  CARI ITEM DI TOKO (Linear Search)".center(48) + "║")
+    print("║" + " 🔍  CARI ITEM DI TOKO (Linear Search)".center(48) + "║")
     print("╚" + "═"*48 + "╝")
     kata = input("\n  Masukkan kata kunci nama item: ").strip()
     if not kata:
@@ -356,7 +357,7 @@ def tampilkan_pencarian_pet_usia(peliharaan_sekarang: Peliharaan, semua_pet: lis
     
     bersihkan_layar()
     print("╔" + "═"*48 + "╗")
-    print("║" + "  🔎  BINARY SEARCH PELIHARAAN BERDASARKAN USIA".center(48) + "║")
+    print("║" + " 🔎  BINARY SEARCH PELIHARAAN BERDASARKAN USIA".center(47) + "║")
     print("╚" + "═"*48 + "╝")
     
     try:
