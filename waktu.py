@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 class NodeWaktu:
     """Satu periode dalam siklus harian."""
     def __init__(self, nama_periode, jam_mulai, jam_selesai,
@@ -94,3 +94,9 @@ def hitung_pembusukan(peliharaan, siklus: SiklusWaktu):
         print(f"  Kelaparan : {peliharaan.kelaparan:.1f}  |  "
               f"Kesenangan: {peliharaan.kesenangan:.1f}  |  "
               f"Kesehatan : {peliharaan.kesehatan:.1f}")
+
+def percepat_waktu(peliharaan, siklus: SiklusWaktu, jam: float):
+    waktu_palsu = datetime.now() - timedelta(hours=jam)
+    peliharaan.terakhir_diupdate = waktu_palsu.isoformat()
+    print(f"  ⏩ [DEBUG] Waktu dipercepat {jam} jam ke depan.")
+    hitung_pembusukan(peliharaan, siklus)
