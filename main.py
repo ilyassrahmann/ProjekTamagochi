@@ -1,6 +1,6 @@
 from peliharaan   import Peliharaan
 from pemain       import Pemain
-from waktu        import SiklusWaktu, hitung_pembusukan
+from waktu        import SiklusWaktu, hitung_pembusukan, percepat_waktu
 from penyimpanan  import simpan_game, muat_game, hapus_save
 from toko         import tampilkan_menu_toko
 from minigame     import tampilkan_menu_minigame
@@ -189,6 +189,17 @@ def jalankan_loop_utama(peliharaan: Peliharaan, pemain: Pemain, riwayat: Stack,
             tampilkan_pencarian_item()
         elif pilihan == "9":
             tampilkan_pencarian_pet_usia(peliharaan)
+        elif pilihan.upper() == "D":
+            try:
+                jam = float(input("  Masukkan jumlah jam untuk percepatan (contoh: 24 untuk 1 hari): "))
+                if jam <= 0:
+                    print("  Masukkan angka positif.")
+                else:
+                    from waktu import percepat_waktu
+                    percepat_waktu(peliharaan, siklus_waktu, jam)
+            except ValueError:
+                print("  Masukkan angka yang valid (contoh: 24.5).")
+            input("\n  Tekan Enter untuk melanjutkan...") 
         elif pilihan == "0":
             simpan_game(peliharaan, pemain, riwayat.ke_list())
             print(f"\n  Sampai jumpa! Jaga {peliharaan.nama} baik-baik ya. 👋")
