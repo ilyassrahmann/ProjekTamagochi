@@ -1,10 +1,11 @@
-from peliharaan  import Peliharaan
-from pemain      import Pemain
-from waktu       import SiklusWaktu, hitung_pembusukan
-from penyimpanan import simpan_game, muat_game
-from toko        import tampilkan_menu_toko
-from minigame    import tampilkan_menu_minigame
-from tampilan    import (
+from peliharaan   import Peliharaan
+from pemain       import Pemain
+from waktu        import SiklusWaktu, hitung_pembusukan
+from penyimpanan  import simpan_game, muat_game
+from toko         import tampilkan_menu_toko
+from minigame     import tampilkan_menu_minigame
+from strukturdata import Stack
+from tampilan     import (
     tampilkan_status,
     tampilkan_menu_utama,
     tampilkan_riwayat,
@@ -15,7 +16,6 @@ from tampilan    import (
 )
 
 def mulai_game_baru() -> tuple:
-    """Minta input pemain dan buat objek baru. Kembalikan (Peliharaan, Pemain, riwayat)."""
     tampilkan_layar_sambutan()
     print("\n  Tidak ada save ditemukan. Mari mulai petualangan baru!\n")
 
@@ -25,7 +25,7 @@ def mulai_game_baru() -> tuple:
 
     peliharaan  = Peliharaan(nama_pet, spesies)
     pemain      = Pemain(nama_pemain)
-    riwayat     = []
+    riwayat     = Stack()
 
     print(f"\n  Selamat! {nama_pet} si {spesies} baru saja lahir. 🥚")
     print(f"  Kamu punya {pemain.koin} koin untuk memulai.")
@@ -48,11 +48,13 @@ def jalankan_game():
 
     hasil_muat = muat_game()
     if hasil_muat:
-        peliharaan, pemain, riwayat = hasil_muat
+        peliharaan, pemain, riwayat_list = hasil_muat
+        riwayat = Stack()
+        for aksi in riwayat_list:
+            riwayat.push(aksi)
         tampilkan_layar_sambutan()
         print(f"\n  Selamat datang kembali, {pemain.nama_pemain}!")
         print(f"  {peliharaan.nama} merindukanmu...\n")
-
         hitung_pembusukan(peliharaan, siklus_waktu)
         input("\n  Tekan Enter untuk melanjutkan...")
     else:
@@ -60,7 +62,7 @@ def jalankan_game():
 
     while True:
         if not peliharaan.masih_hidup:
-            simpan_game(peliharaan, pemain, riwayat)
+            simpan_game(peliharaan, pemain, riwayat.ke_list())
             tampilkan_layar_kematian(peliharaan, pemain)
             break
 
@@ -73,23 +75,18 @@ def jalankan_game():
 
         if pilihan == "1":
             tampilkan_menu_toko(peliharaan, pemain, riwayat)
-
         elif pilihan == "2":
             tampilkan_menu_minigame(peliharaan, pemain, riwayat)
-
         elif pilihan == "3":
             tampilkan_riwayat(riwayat)
-
         elif pilihan == "4":
             tampilkan_info_pemain(pemain, peliharaan)
-
         elif pilihan == "0":
-            simpan_game(peliharaan, pemain, riwayat)
+            simpan_game(peliharaan, pemain, riwayat.ke_list())
             print(f"\n  Sampai jumpa! Jaga {peliharaan.nama} baik-baik ya. 👋")
             break
-
         else:
-            print("  Pilihan tidak valid. Coba lagi.")
+            print("  Pilihan tidak valid.")
 
 if __name__ == "__main__":
     jalankan_game()

@@ -1,6 +1,7 @@
 import os
 from peliharaan import Peliharaan
 from pemain    import Pemain
+from strukturdata import Stack
 
 def bersihkan_layar():
     os.system("cls" if os.name == "nt" else "clear")
@@ -101,15 +102,16 @@ def tampilkan_menu_utama():
     print("─"*50)
     return input("  Pilih menu: ").strip()
 
-def tampilkan_riwayat(riwayat_aksi: list):
+def tampilkan_riwayat(riwayat: Stack):
     bersihkan_layar()
     print("╔" + "═"*48 + "╗")
     print("║" + "  📜  RIWAYAT AKSI".center(48) + "║")
     print("╠" + "═"*48 + "╣")
-    if not riwayat_aksi:
+    daftar_aksi = riwayat.ke_list()
+    if not daftar_aksi:
         print("║" + "  Belum ada aksi.".ljust(48) + "║")
     else:
-        for i, aksi in enumerate(reversed(riwayat_aksi[-10:]), 1):
+        for i, aksi in enumerate(reversed(daftar_aksi[-10:]), 1):
             baris = f"  {i:>2}. {aksi}"
             print("║" + baris[:48].ljust(48) + "║")
     print("╚" + "═"*48 + "╝")
@@ -151,7 +153,7 @@ def tampilkan_layar_kematian(peliharaan: Peliharaan, pemain: Pemain):
 def tampilkan_layar_sambutan():
     bersihkan_layar()
     print("╔" + "═"*48 + "╗")
-    print("║" + "  🐾  SELAMAT DATANG DI TAMAGOTCHI CLI".center(48) + "║")
+    print("║" + "  🐾  SELAMAT DATANG DI TAMAGOTCHI CLI".center(47) + "║")
     print("╚" + "═"*48 + "╝")
 
 

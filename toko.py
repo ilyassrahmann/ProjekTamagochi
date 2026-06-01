@@ -1,5 +1,6 @@
 from peliharaan import Peliharaan
 from pemain    import Pemain
+from strukturdata import Stack
 
 
 DAFTAR_ITEM = {
@@ -70,15 +71,9 @@ def tampilkan_toko():
     print("="*52)
 
 
-def beli_item(id_item: str, peliharaan: Peliharaan, pemain: Pemain,
-              riwayat_aksi: list) -> bool:
-    """
-    Cari item di hash table, kurangi koin pemain, terapkan efek ke peliharaan.
-    Kembalikan True kalau berhasil.
-    """
-
+def beli_item(id_item: str, peliharaan: Peliharaan, pemain: Pemain, riwayat: Stack) -> bool:
+    """Langsung beli dan pakai item (untuk checkout atau beli langsung)."""
     item = DAFTAR_ITEM.get(id_item.upper())
-
     if item is None:
         print("  ⚠️  ID item tidak dikenali.")
         return False
@@ -93,35 +88,96 @@ def beli_item(id_item: str, peliharaan: Peliharaan, pemain: Pemain,
         if "bonus_senang" in item:
             peliharaan.kesenangan = min(100.0, peliharaan.kesenangan + item["bonus_senang"])
         if "pulihkan_sehat" in item:
-            peliharaan.kesehatan  = min(100.0, peliharaan.kesehatan  + item["pulihkan_sehat"])
-        print(f"  🍖 {peliharaan.nama} memakan {nama_item}. "
-              f"Kelaparan: {peliharaan.kelaparan:.1f}")
-
+            peliharaan.kesehatan = min(100.0, peliharaan.kesehatan + item["pulihkan_sehat"])
+        print(f"  🍖 {peliharaan.nama} memakan {nama_item}. Kelaparan: {peliharaan.kelaparan:.1f}")
     elif item["kategori"] == "mainan":
         if peliharaan.energi < item["kurangi_energi"]:
             print(f"  😴 {peliharaan.nama} terlalu lelah untuk main!")
-            pemain.tambah_koin(item["harga"])  # kembalikan koin
+            pemain.tambah_koin(item["harga"])
             return False
-        peliharaan.energi     = max(0.0, peliharaan.energi - item["kurangi_energi"])
+        peliharaan.energi = max(0.0, peliharaan.energi - item["kurangi_energi"])
         peliharaan.kesenangan = min(100.0, peliharaan.kesenangan + item["tambah_senang"])
-        print(f"  🎾 {peliharaan.nama} bermain dengan {nama_item}. "
-              f"Kesenangan: {peliharaan.kesenangan:.1f}")
+        print(f"  🎾 {peliharaan.nama} bermain dengan {nama_item}. Kesenangan: {peliharaan.kesenangan:.1f}")
 
-    riwayat_aksi.append(f"Beli & pakai '{nama_item}' seharga {item['harga']} koin")
+    riwayat.push(f"Beli & pakai '{nama_item}' seharga {item['harga']} koin")
     return True
 
 
-def tampilkan_menu_toko(peliharaan: Peliharaan, pemain: Pemain,
-                        riwayat_aksi: list):
-    """Loop menu toko yang dipanggil dari main menu."""
+def tambah_ke_keranjang(pemain: Pemain):
+    """Enqueue item ID ke keranjang pemain."""
+    print("\n  Masukkan ID item untuk ditambahkan ke keranjang:")
+    id_item = input("  > ").strip().upper()
+    if id_item not in DAFTAR_ITEM:
+        print("  ID tidak valid.")
+        return
+    pemain.keranjang.enqueue(id_item)
+    print(f"  ✅ {DAFTAR_ITEM[id_item]['nama']} ditambahkan ke keranjang.")
+
+
+def lihat_keranjang(pemain: Pemain):
+    """Tampilkan isi keranjang (urutan FIFO)."""
+    print("\n  🛒 ISI KERANJANG (urutan belanja):")
+    items = pemain.keranjang.ke_list()
+    if not items:
+        print("  Keranjang kosong.")
+        return
+    for idx, id_item in enumerate(items, 1):
+        item = DAFTAR_ITEM.get(id_item)
+        if item:
+            print(f"    {idx}. {item['nama']} - {item['harga']}🪙")
+        else:
+            print(f"    {idx}. {id_item} (tidak dikenal)")
+
+
+def checkout(peliharaan: Peliharaan, pemain: Pemain, riwayat: Stack):
+    """Proses semua item dalam keranjang secara FIFO."""
+    if pemain.keranjang.kosong():
+        print("  Keranjang kosong. Tidak ada yang di-checkout.")
+        return
+
+    print("\n  🧾 PROSES CHECKOUT (FIFO):")
+    total_biaya = 0
+    item_ids = pemain.keranjang.ke_list()
+    for id_item in item_ids:
+        item = DAFTAR_ITEM.get(id_item)
+        if item:
+            total_biaya += item["harga"]
+    if pemain.koin < total_biaya:
+        print(f"  ❌ Gagal checkout. Butuh {total_biaya} koin, kamu punya {pemain.koin}.")
+        return
+
+    # Proses satu per satu (dequeue)
+    while not pemain.keranjang.kosong():
+        id_item = pemain.keranjang.dequeue()
+        beli_item(id_item, peliharaan, pemain, riwayat)
+    print("  ✅ Checkout selesai. Keranjang sekarang kosong.")
+
+
+def tampilkan_menu_toko(peliharaan: Peliharaan, pemain: Pemain, riwayat: Stack):
+    """Loop menu toko dengan opsi keranjang."""
     while True:
         tampilkan_toko()
         print(f"\n  Koin kamu: {pemain.koin} 🪙")
-        print("  Masukkan ID item untuk membeli, atau '0' untuk kembali:")
+        print("  OPSI:")
+        print("  [1] Beli langsung (masukkan ID)")
+        print("  [2] Tambah ke keranjang")
+        print("  [3] Lihat keranjang")
+        print("  [4] Checkout (proses semua item di keranjang)")
+        print("  [0] Kembali")
         pilihan = input("  > ").strip()
 
         if pilihan == "0":
             break
+        elif pilihan == "1":
+            id_item = input("  Masukkan ID item: ").strip()
+            beli_item(id_item, peliharaan, pemain, riwayat)
+        elif pilihan == "2":
+            tambah_ke_keranjang(pemain)
+        elif pilihan == "3":
+            lihat_keranjang(pemain)
+        elif pilihan == "4":
+            checkout(peliharaan, pemain, riwayat)
+        else:
+            print("  Pilihan tidak valid.")
 
-        beli_item(pilihan, peliharaan, pemain, riwayat_aksi)
         input("\n  Tekan Enter untuk melanjutkan...")

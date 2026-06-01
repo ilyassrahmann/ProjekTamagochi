@@ -1,6 +1,7 @@
 import random
 from peliharaan import Peliharaan
 from pemain    import Pemain
+from strukturdata import Stack
 
 BIAYA_ENERGI_GAME = 20.0  
 
@@ -16,16 +17,16 @@ def _cek_energi(peliharaan: Peliharaan) -> bool:
 
 
 def _selesai_main(peliharaan: Peliharaan, pemain: Pemain,
-                  koin_menang: int, riwayat_aksi: list, nama_game: str):
+                  koin_menang: int, riwayat_aksi: Stack, nama_game: str):
     """Terapkan hasil game: kurangi energi, tambah koin, catat riwayat."""
     peliharaan.energi     = max(0.0, peliharaan.energi - BIAYA_ENERGI_GAME)
     peliharaan.kesenangan = min(100.0, peliharaan.kesenangan + 5.0)  
     pemain.tambah_koin(koin_menang)
-    riwayat_aksi.append(f"Main '{nama_game}', menang {koin_menang} koin")
+    riwayat_aksi.push(f"Main '{nama_game}', menang {koin_menang} koin")
     print(f"  ⚡ Energi {peliharaan.nama}: {peliharaan.energi:.1f}")
 
 def game_tebak_angka(peliharaan: Peliharaan, pemain: Pemain,
-                     riwayat_aksi: list):
+                     riwayat_aksi: Stack):
     """
     Tebak angka 1-20 dalam 5 kesempatan.
     Makin sedikit tebakan, makin banyak koin.
@@ -72,7 +73,7 @@ MENANG_LAWAN = {
     "Kertas" : "Batu",
 }
 
-def game_suit(peliharaan: Peliharaan, pemain: Pemain, riwayat_aksi: list):
+def game_suit(peliharaan: Peliharaan, pemain: Pemain, riwayat_aksi: Stack):
     if not _cek_energi(peliharaan):
         return
 
@@ -124,7 +125,7 @@ def game_suit(peliharaan: Peliharaan, pemain: Pemain, riwayat_aksi: list):
     _selesai_main(peliharaan, pemain, koin_menang, riwayat_aksi, "Suit")
 
 def tampilkan_menu_minigame(peliharaan: Peliharaan, pemain: Pemain,
-                             riwayat_aksi: list):
+                             riwayat_aksi: Stack):
     while True:
         print("\n" + "="*44)
         print("  🎮  MINIGAME")

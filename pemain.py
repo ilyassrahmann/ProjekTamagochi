@@ -1,16 +1,20 @@
+from strukturdata import Queue
+
 class Pemain:
     def __init__(self, nama_pemain):
         self.nama_pemain      = nama_pemain
         self.koin             = 50          
         self.total_hari_hidup = 0          
         self.daftar_badge     = set()       
+        self.keranjang = Queue()
 
     def ke_dict(self):
         return {
             "nama_pemain"      : self.nama_pemain,
             "koin"             : self.koin,
             "total_hari_hidup" : self.total_hari_hidup,
-            "daftar_badge"     : list(self.daftar_badge),  
+            "daftar_badge"     : list(self.daftar_badge),
+            "keranjang"        : self.keranjang.ke_list(),
         }
 
     @classmethod
@@ -19,6 +23,9 @@ class Pemain:
         p.koin             = data["koin"]
         p.total_hari_hidup = data["total_hari_hidup"]
         p.daftar_badge     = set(data["daftar_badge"])
+        keranjang_list = data.get("keranjang", [])
+        for item_id in keranjang_list:
+            p.keranjang.enqueue(item_id)
         return p
 
     def tambah_koin(self, jumlah):
