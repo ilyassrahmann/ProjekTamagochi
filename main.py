@@ -5,6 +5,7 @@ from penyimpanan  import simpan_game, muat_game
 from toko         import tampilkan_menu_toko
 from minigame     import tampilkan_menu_minigame
 from strukturdata import Stack
+from evolusi      import PohonEvolusi, GraphEvolusi
 import math
 from tampilan     import (
     tampilkan_status,
@@ -51,6 +52,9 @@ def cek_badge(peliharaan: Peliharaan, pemain: Pemain):
 
 def jalankan_game():
     siklus_waktu = SiklusWaktu()
+    pohon_evolusi = PohonEvolusi()
+    graph_evolusi = GraphEvolusi()
+    graph_evolusi.bangun_graph()
 
     hasil_muat = muat_game()
     if hasil_muat:
@@ -76,6 +80,7 @@ def jalankan_game():
 
         cek_badge(peliharaan, pemain)
 
+        #Snapshot
         hari_sekarang = math.floor(peliharaan.usia)
         if hari_sekarang > hari_terakhir:
             # Ada kenaikan hari (bisa +1, +2, dst jika offline lama)
@@ -93,6 +98,15 @@ def jalankan_game():
                 peliharaan.histori_hari.tambah_hari(h, snapshot)
                 print(f"  📅 Snapshot hari ke-{h} tersimpan.")
             hari_terakhir = hari_sekarang
+
+        #Cek Evolusi
+        tahap_baru = graph_evolusi.cek_evolusi(peliharaan)
+        if tahap_baru and tahap_baru != peliharaan.tahap_evolusi:
+            print(f"\n  ✨✨ {peliharaan.nama} berevolusi menjadi {tahap_baru}! ✨✨")
+            peliharaan.tahap_evolusi = tahap_baru
+            riwayat.push(f"Evolusi! {peliharaan.nama} menjadi {tahap_baru}")
+            pemain.tambah_koin(20)
+            print(f"  Bonus evolusi: +20 koin!")
 
         periode_kini = siklus_waktu.periode_sekarang()
         tampilkan_status(peliharaan, pemain, periode_kini.nama_periode)
