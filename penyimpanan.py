@@ -14,6 +14,8 @@ def simpan_game(peliharaan: Peliharaan, pemain: Pemain, riwayat_aksi: list):
         "peliharaan"  : peliharaan.ke_dict(),
         "pemain"      : pemain.ke_dict(),
         "riwayat_aksi": riwayat_aksi,
+        "riwayat_makanan" : peliharaan.riwayat_makanan.ke_dict_list(),
+        "histori_hari"    : peliharaan.histori_hari.ke_dict_list(),
     }
     try:
         with open(NAMA_FILE_SAVE, "w", encoding="utf-8") as f:
