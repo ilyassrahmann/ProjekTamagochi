@@ -112,8 +112,8 @@ def _terapkan_pembusukan_jam(peliharaan, periode: NodeWaktu, jam_delta: float) -
 
 
 def _terapkan_kematian(peliharaan):
-    """Set tahap Arwah hanya saat mati dari jalur Dewasa Sakit."""
-    if peliharaan.tahap_evolusi == "Dewasa Sakit":
+    """Semua kematian berujung pada tahap Arwah (konsisten dengan pohon evolusi)."""
+    if peliharaan.tahap_evolusi != "Arwah":
         peliharaan.tahap_evolusi = "Arwah"
 
 
@@ -133,7 +133,7 @@ def hitung_pembusukan(peliharaan, siklus: SiklusWaktu, tampilkan_log: bool = Tru
         return
 
     periode_terakhir, jam_berlalu = siklus.simulasikan_pembusukan(
-        peliharaan, terakhir, sekarang,
+        peliharaan, terakhir, sekarang
     )
     if jam_berlalu < 0.01:
         return

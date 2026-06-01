@@ -4,6 +4,14 @@ from strukturdata import Stack
 from datetime import datetime
 
 
+BERAT_MIN = 3.0
+BERAT_MAX = 99.9
+
+
+def _ubah_berat(peliharaan: Peliharaan, tambah: float = 0.0, kurangi: float = 0.0):
+    peliharaan.berat = max(BERAT_MIN, min(BERAT_MAX, peliharaan.berat + tambah - kurangi))
+
+
 DAFTAR_ITEM = {
     "M001": {
         "nama"            : "Kibble Biasa",
@@ -27,8 +35,8 @@ DAFTAR_ITEM = {
         "kategori"        : "makanan",
         "harga"           : 20,
         "pulihkan_lapar"  : 25.0,
-        "tambah_berat"    : 0.1,
-        "deskripsi"       : "Rendah kalori. Cocok kalau berat badan sudah tinggi.",
+        "kurangi_berat"   : 0.5,
+        "deskripsi"       : "Rendah kalori. Menurunkan berat badan sedikit.",
     },
     "M004": {
         "nama"            : "Obat",
@@ -72,11 +80,44 @@ def tampilkan_toko():
     print("="*52)
 
 
+def _validasi_keranjang(peliharaan: Peliharaan, pemain: Pemain, item_ids: list) -> bool:
+    """
+    Cek apakah semua item di keranjang bisa dibeli (koin + energi untuk mainan).
+    Simulasi energi berurutan sesuai urutan FIFO.
+    """
+    total_biaya = 0
+    energi_sim  = peliharaan.energi
+
+    for id_item in item_ids:
+        item = DAFTAR_ITEM.get(id_item)
+        if item is None:
+            print(f"  ⚠️  Item {id_item} tidak dikenali.")
+            return False
+        total_biaya += item["harga"]
+        if item["kategori"] == "mainan":
+            butuh = item["kurangi_energi"]
+            if energi_sim < butuh:
+                print(f"  ❌ Energi tidak cukup untuk '{item['nama']}' "
+                      f"(butuh {butuh:.0f}, tersisa {energi_sim:.1f}).")
+                print("  Checkout dibatalkan; isi keranjang tidak diubah.")
+                return False
+            energi_sim -= butuh
+
+    if pemain.koin < total_biaya:
+        print(f"  ❌ Koin tidak cukup. Butuh {total_biaya} koin, kamu punya {pemain.koin}.")
+        return False
+    return True
+
+
 def beli_item(id_item: str, peliharaan: Peliharaan, pemain: Pemain, riwayat: Stack) -> bool:
     """Langsung beli dan pakai item (untuk checkout atau beli langsung)."""
     item = DAFTAR_ITEM.get(id_item.upper())
     if item is None:
         print("  ⚠️  ID item tidak dikenali.")
+        return False
+
+    if item["kategori"] == "mainan" and peliharaan.energi < item["kurangi_energi"]:
+        print(f"  😴 {peliharaan.nama} terlalu lelah untuk main!")
         return False
 
     if not pemain.kurangi_koin(item["harga"]):
@@ -85,7 +126,11 @@ def beli_item(id_item: str, peliharaan: Peliharaan, pemain: Pemain, riwayat: Sta
     nama_item = item["nama"]
     if item["kategori"] == "makanan":
         peliharaan.kelaparan = min(100.0, peliharaan.kelaparan + item["pulihkan_lapar"])
-        peliharaan.berat     = min(99.9, peliharaan.berat + item["tambah_berat"])
+        _ubah_berat(
+            peliharaan,
+            tambah=item.get("tambah_berat", 0.0),
+            kurangi=item.get("kurangi_berat", 0.0),
+        )
         if "bonus_senang" in item:
             peliharaan.kesenangan = min(100.0, peliharaan.kesenangan + item["bonus_senang"])
         if "pulihkan_sehat" in item:
@@ -94,10 +139,6 @@ def beli_item(id_item: str, peliharaan: Peliharaan, pemain: Pemain, riwayat: Sta
         peliharaan.riwayat_makanan.tambah(nama_item, waktu_str)
         print(f"  🍖 {peliharaan.nama} memakan {nama_item}. Kelaparan: {peliharaan.kelaparan:.1f}")
     elif item["kategori"] == "mainan":
-        if peliharaan.energi < item["kurangi_energi"]:
-            print(f"  😴 {peliharaan.nama} terlalu lelah untuk main!")
-            pemain.tambah_koin(item["harga"])
-            return False
         peliharaan.energi = max(0.0, peliharaan.energi - item["kurangi_energi"])
         peliharaan.kesenangan = min(100.0, peliharaan.kesenangan + item["tambah_senang"])
         print(f"  🎾 {peliharaan.nama} bermain dengan {nama_item}. Kesenangan: {peliharaan.kesenangan:.1f}")
@@ -139,20 +180,17 @@ def checkout(peliharaan: Peliharaan, pemain: Pemain, riwayat: Stack):
         return
 
     print("\n  🧾 PROSES CHECKOUT (FIFO):")
-    total_biaya = 0
     item_ids = pemain.keranjang.ke_list()
-    for id_item in item_ids:
-        item = DAFTAR_ITEM.get(id_item)
-        if item:
-            total_biaya += item["harga"]
-    if pemain.koin < total_biaya:
-        print(f"  ❌ Gagal checkout. Butuh {total_biaya} koin, kamu punya {pemain.koin}.")
+    if not _validasi_keranjang(peliharaan, pemain, item_ids):
         return
 
-    # Proses satu per satu (dequeue)
     while not pemain.keranjang.kosong():
-        id_item = pemain.keranjang.dequeue()
-        beli_item(id_item, peliharaan, pemain, riwayat)
+        id_item = pemain.keranjang.peek()
+        if not beli_item(id_item, peliharaan, pemain, riwayat):
+            print("  ⚠️  Checkout terhenti. Sisa item tetap di keranjang.")
+            return
+        pemain.keranjang.dequeue()
+
     print("  ✅ Checkout selesai. Keranjang sekarang kosong.")
 
 

@@ -111,9 +111,10 @@ class GraphEvolusi:
         self._tambah_edge("Bayi", "Remaja Sehat", {"usia": 2, "kesehatan": 60, "kelaparan": 50})
         self._tambah_edge("Bayi", "Remaja Kurus", {"usia": 2})   # fallback
 
-        # Dari Remaja Sehat ke Dewasa
+        # Dari Remaja Sehat ke Dewasa (fallback di akhir agar prioritas tetap ke jalur utama)
         self._tambah_edge("Remaja Sehat", "Dewasa Atletis", {"usia": 5, "kesenangan": 70, "energi": 60})
         self._tambah_edge("Remaja Sehat", "Dewasa Bijak", {"usia": 5, "kesehatan": 80})
+        self._tambah_edge("Remaja Sehat", "Dewasa Kurus", {"usia": 5})
 
         # Dari Remaja Kurus ke Dewasa
         self._tambah_edge("Remaja Kurus", "Dewasa Kurus", {"usia": 5, "kesehatan": 30})
@@ -125,7 +126,7 @@ class GraphEvolusi:
         self._tambah_edge("Dewasa Bijak", "Tua Sehat", {"usia": 15, "kesehatan": 75})
         # Dari Dewasa Kurus ke Tua Kurus
         self._tambah_edge("Dewasa Kurus", "Tua Kurus", {"usia": 15})
-        # Arwah hanya dicapai saat kematian (lihat waktu._terapkan_kematian)
+        # Arwah dicapai saat kematian (lihat waktu._terapkan_kematian)
 
     def cek_evolusi(self, peliharaan) -> str | None:
         """

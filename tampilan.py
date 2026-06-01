@@ -110,25 +110,40 @@ def tampilkan_menu_utama():
     print("  [7] Leaderboard")
     print("  [8] Cari Item di Toko")
     print("  [9] Cari Peliharaan menurut Usia")
-    print("  [U] Hapus Entri Log Terakhir")
     print("  [0] Simpan & Keluar")
     print("─"*50)
     return input("  Pilih menu: ").strip()
 
 def tampilkan_riwayat(riwayat: Stack):
-    bersihkan_layar()
-    print("╔" + "═"*48 + "╗")
-    print("║" + "  📜  RIWAYAT AKSI".center(48) + "║")
-    print("╠" + "═"*48 + "╣")
-    daftar_aksi = riwayat.ke_list()
-    if not daftar_aksi:
-        print("║" + "  Belum ada aksi.".ljust(48) + "║")
-    else:
-        for i, aksi in enumerate(reversed(daftar_aksi[-10:]), 1):
-            baris = f"  {i:>2}. {aksi}"
-            print("║" + baris[:48].ljust(48) + "║")
-    print("╚" + "═"*48 + "╝")
-    input("\n  Tekan Enter untuk kembali...")
+    while True:
+        bersihkan_layar()
+        print("╔" + "═"*48 + "╗")
+        print("║" + "  📜  RIWAYAT AKSI (Stack / log)".center(48) + "║")
+        print("╠" + "═"*48 + "╣")
+        daftar_aksi = riwayat.ke_list()
+        if not daftar_aksi:
+            print("║" + "  Belum ada aksi.".ljust(48) + "║")
+        else:
+            for i, aksi in enumerate(reversed(daftar_aksi[-10:]), 1):
+                baris = f"  {i:>2}. {aksi}"
+                print("║" + baris[:48].ljust(48) + "║")
+        print("╠" + "═"*48 + "╣")
+        print("║  [H] Hapus entri log terakhir  [0] Kembali".ljust(48) + "║")
+        print("║" + "  (Hanya teks log; koin/stat tidak berubah)".ljust(48) + "║")
+        print("╚" + "═"*48 + "╝")
+        pilih = input("\n  > ").strip().upper()
+        if pilih == "H":
+            aksi = riwayat.pop()
+            if aksi:
+                print(f"\n  🗑️  Entri log dihapus: '{aksi}'")
+                input("  Tekan Enter...")
+            else:
+                print("\n  Log kosong.")
+                input("  Tekan Enter...")
+        elif pilih == "0":
+            break
+        else:
+            break
 
 
 def tampilkan_info_pemain(pemain: Pemain, peliharaan: Peliharaan,
@@ -180,8 +195,7 @@ def tampilkan_layar_kematian(peliharaan: Peliharaan, pemain: Pemain) -> bool:
     print("  💀  PELIHARAAN MENINGGAL")
     print("="*48)
     print(f"\n  {peliharaan.nama} ({peliharaan.spesies}) telah pergi...")
-    if peliharaan.tahap_evolusi == "Arwah":
-        print("  Tahap akhir : Arwah 👻")
+    print(f"  Tahap akhir : {peliharaan.tahap_evolusi} 👻")
     print(f"  Usia terakhir : {peliharaan.usia:.1f} hari")
     print(f"  Koin tersisa  : {pemain.koin}")
     print(f"\n  Terima kasih sudah merawat {peliharaan.nama}.")
@@ -240,12 +254,12 @@ def tampilkan_navigasi_histori(peliharaan: Peliharaan):
             print("║" + "  Statistik (saat dicatat):".ljust(48) + "║")
             usia_tampil = snapshot.get("usia", 0.0)
             print(f"║    Usia      : {usia_tampil:.1f} hari".ljust(48) + "║")
-            print(f"║    Kelaparan : {snapshot['kelaparan']:.1f}".ljust(48) + "║")
-            print(f"║    Kesenangan: {snapshot['kesenangan']:.1f}".ljust(48) + "║")
-            print(f"║    Kesehatan : {snapshot['kesehatan']:.1f}".ljust(48) + "║")
-            print(f"║    Berat     : {snapshot['berat']:.1f}".ljust(48) + "║")
-            print(f"║    Energi    : {snapshot['energi']:.1f}".ljust(48) + "║")
-            print(f"║    Evolusi   : {snapshot['tahap_evolusi']}".ljust(48) + "║")
+            print(f"║    Kelaparan : {snapshot.get('kelaparan', 0):.1f}".ljust(48) + "║")
+            print(f"║    Kesenangan: {snapshot.get('kesenangan', 0):.1f}".ljust(48) + "║")
+            print(f"║    Kesehatan : {snapshot.get('kesehatan', 0):.1f}".ljust(48) + "║")
+            print(f"║    Berat     : {snapshot.get('berat', 0):.1f}".ljust(48) + "║")
+            print(f"║    Energi    : {snapshot.get('energi', 0):.1f}".ljust(48) + "║")
+            print(f"║    Evolusi   : {snapshot.get('tahap_evolusi', '?')}".ljust(48) + "║")
         print("╠" + "═"*48 + "╣")
         print("║  [A] Awal  [M] Mundur  [J] Maju  [AK] Akhir  [0] Kembali".ljust(48) + "║")
         print("╚" + "═"*48 + "╝")
@@ -271,8 +285,6 @@ def tampilkan_leaderboard(peliharaan_sekarang: Peliharaan, semua_pet: list = Non
     Untuk keperluan demo, kita buat list berisi peliharaan sekarang + dummy.
     """
     if semua_pet is None:
-        # Buat dummy pet lain untuk menunjukkan sorting
-        from peliharaan import Peliharaan
         dummy1 = Peliharaan("Rex", "Anjing")
         dummy1.usia = 12.5
         dummy1.kesehatan = 85.0
@@ -331,7 +343,6 @@ def tampilkan_pencarian_pet_usia(peliharaan_sekarang: Peliharaan, semua_pet: lis
     Mencari pet dengan usia tertentu.
     """
     if semua_pet is None:
-        from peliharaan import Peliharaan
         dummy1 = Peliharaan("Rex", "Anjing")
         dummy1.usia = 12.5
         dummy2 = Peliharaan("Luna", "Kucing")
@@ -339,7 +350,7 @@ def tampilkan_pencarian_pet_usia(peliharaan_sekarang: Peliharaan, semua_pet: lis
         dummy3 = Peliharaan("Slimey", "Slime")
         dummy3.usia = 20.0
         semua_pet = [peliharaan_sekarang, dummy1, dummy2, dummy3]
-    
+
     # Urutkan berdasarkan usia (naik) untuk binary search
     urut_usia_naik = bubble_sort_peliharaan(semua_pet, "usia", "naik")
     

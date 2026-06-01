@@ -56,34 +56,34 @@ class Peliharaan:
 
     def status_kelaparan(self):
         """Kembalikan label teks berdasarkan nilai kelaparan."""
-        if self.kelaparan >= 70:
+        v = max(0.0, min(100.0, self.kelaparan))
+        if v >= 70:
             return "Kenyang"
-        elif self.kelaparan >= 40:
+        elif v >= 40:
             return "Biasa"
-        elif self.kelaparan >= 15:
+        elif v >= 15:
             return "Lapar"
-        else:
-            return "Sangat Lapar!"
+        return "Sangat Lapar!"
 
     def status_mood(self):
-        if self.kesenangan >= 70:
+        v = max(0.0, min(100.0, self.kesenangan))
+        if v >= 70:
             return "Bahagia"
-        elif self.kesenangan >= 40:
+        elif v >= 40:
             return "Biasa"
-        elif self.kesenangan >= 15:
+        elif v >= 15:
             return "Sedih"
-        else:
-            return "Sangat Sedih!"
+        return "Sangat Sedih!"
 
     def status_kesehatan(self):
-        if self.kesehatan >= 70:
+        v = max(0.0, min(100.0, self.kesehatan))
+        if v >= 70:
             return "Sehat"
-        elif self.kesehatan >= 40:
+        elif v >= 40:
             return "Kurang Sehat"
-        elif self.kesehatan >= 15:
+        elif v >= 15:
             return "Sakit"
-        else:
-            return "Kritis!"
+        return "Kritis!"
 
     def ringkasan(self):
         """Kembalikan string ringkasan satu baris untuk leaderboard/export."""

@@ -3,7 +3,8 @@ from peliharaan import Peliharaan
 from pemain    import Pemain
 from strukturdata import Stack
 
-BIAYA_ENERGI_GAME = 20.0  
+BIAYA_ENERGI_GAME = 20.0
+PENURUNAN_BERAT_GAME = 0.3
 
 
 def _cek_energi(peliharaan: Peliharaan) -> bool:
@@ -20,10 +21,12 @@ def _selesai_main(peliharaan: Peliharaan, pemain: Pemain,
                   koin_menang: int, riwayat_aksi: Stack, nama_game: str):
     """Terapkan hasil game: kurangi energi, tambah koin, catat riwayat."""
     peliharaan.energi     = max(0.0, peliharaan.energi - BIAYA_ENERGI_GAME)
-    peliharaan.kesenangan = min(100.0, peliharaan.kesenangan + 5.0)  
+    peliharaan.kesenangan = min(100.0, peliharaan.kesenangan + 5.0)
+    peliharaan.berat      = max(3.0, peliharaan.berat - PENURUNAN_BERAT_GAME)
     pemain.tambah_koin(koin_menang)
     riwayat_aksi.push(f"Main '{nama_game}', menang {koin_menang} koin")
-    print(f"  ⚡ Energi {peliharaan.nama}: {peliharaan.energi:.1f}")
+    print(f"  ⚡ Energi {peliharaan.nama}: {peliharaan.energi:.1f}  |  "
+          f"Berat: {peliharaan.berat:.1f}")
 
 def game_tebak_angka(peliharaan: Peliharaan, pemain: Pemain,
                      riwayat_aksi: Stack):
@@ -44,25 +47,30 @@ def game_tebak_angka(peliharaan: Peliharaan, pemain: Pemain,
     angka_rahasia = random.randint(1, 20)
     maks_tebak    = 5
     koin_menang   = 0
+    percobaan     = 0
+    menang        = False
 
-    for percobaan in range(1, maks_tebak + 1):
+    while percobaan < maks_tebak and not menang:
+        percobaan += 1
         try:
             tebak = int(input(f"  Tebakan ke-{percobaan}: "))
         except ValueError:
-            print("  Masukkan angka yang valid!")
+            print("  Masukkan angka yang valid! (tidak dihitung sebagai tebakan)")
+            percobaan -= 1
             continue
 
         if tebak == angka_rahasia:
             koin_menang = max(10, 50 - (percobaan - 1) * 10)
             print(f"\n  🎉 Benar! Angkanya memang {angka_rahasia}.")
-            break
+            menang = True
         elif tebak < angka_rahasia:
             print("  📈 Terlalu kecil!")
         else:
             print("  📉 Terlalu besar!")
-    else:
+
+    if not menang:
         print(f"\n  😅 Kehabisan kesempatan! Angkanya adalah {angka_rahasia}.")
-        koin_menang = 5   # hadiah hiburan
+        koin_menang = 5
 
     _selesai_main(peliharaan, pemain, koin_menang, riwayat_aksi, "Tebak Angka")
 

@@ -189,12 +189,6 @@ def jalankan_loop_utama(peliharaan: Peliharaan, pemain: Pemain, riwayat: Stack,
             tampilkan_pencarian_item()
         elif pilihan == "9":
             tampilkan_pencarian_pet_usia(peliharaan)
-        elif pilihan in ("U", "u"):
-            aksi = riwayat.pop()
-            if aksi:
-                print(f"  🗑️  Entri log dihapus: '{aksi}'")
-            else:
-                print("  Log aksi kosong, tidak ada entri untuk dihapus.")
         elif pilihan == "0":
             simpan_game(peliharaan, pemain, riwayat.ke_list())
             print(f"\n  Sampai jumpa! Jaga {peliharaan.nama} baik-baik ya. 👋")
