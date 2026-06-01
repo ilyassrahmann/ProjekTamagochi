@@ -110,6 +110,7 @@ def tampilkan_menu_utama():
     print("  [7] Leaderboard")
     print("  [8] Cari Item di Toko")
     print("  [9] Cari Peliharaan menurut Usia")
+    print("  [D] Percepat Waktu")
     print("  [0] Simpan & Keluar")
     print("─"*50)
     return input("  Pilih menu: ").strip()
