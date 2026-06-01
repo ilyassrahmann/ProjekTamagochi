@@ -93,3 +93,38 @@ class Peliharaan:
             f"Evolusi: {self.tahap_evolusi} | "
             f"{'Hidup' if self.masih_hidup else 'Mati'}"
         )
+
+    def hitung_skor_kebugaran(self, kedalaman: int = 0) -> float:
+        """
+        Hitung skor kebugaran keseluruhan secara rekursif.
+        Setiap level rekursif menambahkan kontribusi satu stat dengan bobot tertentu.
+        """
+        # Daftar stat dan bobotnya (total 100%)
+        stat_bobot = [
+            ("kesehatan",  0.40),   # 40%
+            ("kelaparan",  0.25),   # 25%
+            ("kesenangan", 0.20),   # 20%
+            ("energi",     0.15),   # 15%
+        ]
+        
+        # Base case: sudah melewati semua stat
+        if kedalaman >= len(stat_bobot):
+            return 0.0
+        
+        nama_stat, bobot = stat_bobot[kedalaman]
+        nilai_stat = getattr(self, nama_stat)
+        
+        # Rekursif: kontribusi stat ini + lanjut ke stat berikutnya
+        return (nilai_stat * bobot) + self.hitung_skor_kebugaran(kedalaman + 1)
+    
+    def kategori_skor(self) -> str:
+        """Kembalikan label kategori berdasarkan skor rekursif."""
+        skor = self.hitung_skor_kebugaran()
+        if skor >= 80:
+            return "Luar Biasa"
+        elif skor >= 60:
+            return "Baik"
+        elif skor >= 40:
+            return "Cukup"
+        else:
+            return "Buruk"

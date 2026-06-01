@@ -90,6 +90,11 @@ def tampilkan_status(peliharaan: Peliharaan, pemain: Pemain, nama_periode: str):
         indik = warna_status(nilai)
         print(f"║  {label}: {bilah} {indik} {teks_status:<8}║")
 
+    skor = peliharaan.hitung_skor_kebugaran()
+    kategori = peliharaan.kategori_skor()
+    print("╠" + "═"*48 + "╣")
+    print(f"║  🧮 Skor Kebugaran: {skor:.1f} / 100  ({kategori:<10})║")
+
     print("╠" + "═"*48 + "╣")
     print(f"║  💰 Koin : {pemain.koin:<37}║")
     print("╚" + "═"*48 + "╝")
