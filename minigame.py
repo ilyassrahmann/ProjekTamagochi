@@ -144,6 +144,7 @@ def tampilkan_menu_minigame(peliharaan: Peliharaan, pemain: Pemain,
         print("-"*44)
         print("  [1] Tebak Angka  (maks 50 koin)")
         print("  [2] Suit         (maks 40 koin)")
+        print("  [D] Developer Mode (koin gratis)")
         print("  [0] Kembali")
         print("="*44)
 
@@ -153,9 +154,17 @@ def tampilkan_menu_minigame(peliharaan: Peliharaan, pemain: Pemain,
             game_tebak_angka(peliharaan, pemain, riwayat_aksi)
         elif pilihan == "2":
             game_suit(peliharaan, pemain, riwayat_aksi)
+        elif pilihan.upper() == "D":
+            dev_koin_gratis(pemain)
         elif pilihan == "0":
             break
         else:
             print("  Pilihan tidak valid.")
 
         input("\n  Tekan Enter untuk melanjutkan...")
+
+def dev_koin_gratis(pemain: Pemain):
+    """Fitur rahasia untuk developer/testing: dapatkan 100 koin gratis."""
+    pemain.tambah_koin(100)
+    print("  🎉 Koin gratis telah ditambahkan! Total koin kamu sekarang: "
+          f"{pemain.koin} 🪙")
