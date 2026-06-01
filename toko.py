@@ -1,6 +1,7 @@
 from peliharaan import Peliharaan
 from pemain    import Pemain
 from strukturdata import Stack
+from datetime import datetime
 
 
 DAFTAR_ITEM = {
@@ -89,6 +90,8 @@ def beli_item(id_item: str, peliharaan: Peliharaan, pemain: Pemain, riwayat: Sta
             peliharaan.kesenangan = min(100.0, peliharaan.kesenangan + item["bonus_senang"])
         if "pulihkan_sehat" in item:
             peliharaan.kesehatan = min(100.0, peliharaan.kesehatan + item["pulihkan_sehat"])
+        waktu_str = datetime.now().strftime("%d/%m %H:%M")
+        peliharaan.riwayat_makanan.tambah(nama_item, waktu_str)
         print(f"  🍖 {peliharaan.nama} memakan {nama_item}. Kelaparan: {peliharaan.kelaparan:.1f}")
     elif item["kategori"] == "mainan":
         if peliharaan.energi < item["kurangi_energi"]:

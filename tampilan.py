@@ -98,6 +98,8 @@ def tampilkan_menu_utama():
     print("  [2] Main Minigame              (Cari Koin)")
     print("  [3] Lihat Riwayat Aksi")
     print("  [4] Info & Badge")
+    print("  [5] Riwayat Makanan")
+    print("  [6] Histori Hari")
     print("  [0] Simpan & Keluar")
     print("─"*50)
     return input("  Pilih menu: ").strip()
@@ -170,3 +172,54 @@ def pilih_spesies() -> str:
         except ValueError:
             pass
         print("  Pilihan tidak valid.")
+
+def tampilkan_riwayat_makanan(peliharaan: Peliharaan):
+    bersihkan_layar()
+    print("╔" + "═"*48 + "╗")
+    print("║" + "  🍽️  RIWAYAT MAKANAN (Single Linked List)".center(48) + "║")
+    print("╠" + "═"*48 + "╣")
+    daftar = peliharaan.riwayat_makanan.ke_list()
+    if not daftar:
+        print("║" + "  Belum pernah memberi makan.".ljust(48) + "║")
+    else:
+        for i, item in enumerate(daftar[:10], 1):   # tampilkan 10 terbaru
+            print("║" + f"  {i}. {item}".ljust(48) + "║")
+    print("╚" + "═"*48 + "╝")
+    input("\n  Tekan Enter untuk kembali...")
+
+def tampilkan_navigasi_histori(peliharaan: Peliharaan):
+    """Menu untuk navigasi Double Linked List histori hari."""
+    while True:
+        bersihkan_layar()
+        hari_ke, snapshot = peliharaan.histori_hari.info_kursor()
+        print("╔" + "═"*48 + "╗")
+        print("║" + "  📅  HISTORI HARI (Double Linked List)".center(48) + "║")
+        print("╠" + "═"*48 + "╣")
+        if snapshot is None:
+            print("║" + "  Belum ada histori hari.".ljust(48) + "║")
+        else:
+            print(f"║  Hari ke-{hari_ke}".ljust(48) + "║")
+            print("║" + "  Statistik:".ljust(48) + "║")
+            print(f"║    Usia      : {snapshot['usia']:.1f}".ljust(48) + "║")
+            print(f"║    Kelaparan : {snapshot['kelaparan']:.1f}".ljust(48) + "║")
+            print(f"║    Kesenangan: {snapshot['kesenangan']:.1f}".ljust(48) + "║")
+            print(f"║    Kesehatan : {snapshot['kesehatan']:.1f}".ljust(48) + "║")
+            print(f"║    Berat     : {snapshot['berat']:.1f}".ljust(48) + "║")
+            print(f"║    Energi    : {snapshot['energi']:.1f}".ljust(48) + "║")
+            print(f"║    Evolusi   : {snapshot['tahap_evolusi']}".ljust(48) + "║")
+        print("╠" + "═"*48 + "╣")
+        print("║  [A] Awal  [M] Mundur  [J] Maju  [AK] Akhir  [0] Kembali".ljust(48) + "║")
+        print("╚" + "═"*48 + "╝")
+        pilih = input("  > ").strip().upper()
+        if pilih == "A":
+            peliharaan.histori_hari.ke_awal()
+        elif pilih == "M":
+            peliharaan.histori_hari.mundur()
+        elif pilih == "J":
+            peliharaan.histori_hari.maju()
+        elif pilih == "AK":
+            peliharaan.histori_hari.ke_akhir()
+        elif pilih == "0":
+            break
+        else:
+            input("  Pilihan tidak valid. Tekan Enter...")

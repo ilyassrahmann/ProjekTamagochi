@@ -5,6 +5,7 @@ from penyimpanan  import simpan_game, muat_game
 from toko         import tampilkan_menu_toko
 from minigame     import tampilkan_menu_minigame
 from strukturdata import Stack
+import math
 from tampilan     import (
     tampilkan_status,
     tampilkan_menu_utama,
@@ -12,6 +13,8 @@ from tampilan     import (
     tampilkan_info_pemain,
     tampilkan_layar_kematian,
     tampilkan_layar_sambutan,
+    tampilkan_navigasi_histori,
+    tampilkan_riwayat_makanan,
     pilih_spesies,
 )
 
@@ -60,6 +63,8 @@ def jalankan_game():
     else:
         peliharaan, pemain, riwayat = mulai_game_baru()
 
+    hari_terakhir = math.floor(peliharaan.usia)
+
     while True:
         if not peliharaan.masih_hidup:
             simpan_game(peliharaan, pemain, riwayat.ke_list())
@@ -67,6 +72,24 @@ def jalankan_game():
             break
 
         cek_badge(peliharaan, pemain)
+
+        hari_sekarang = math.floor(peliharaan.usia)
+        if hari_sekarang > hari_terakhir:
+            # Ada kenaikan hari (bisa +1, +2, dst jika offline lama)
+            for h in range(hari_terakhir + 1, hari_sekarang + 1):
+                # Buat snapshot kondisi pet di awal hari ke-h
+                snapshot = {
+                    "usia": peliharaan.usia,
+                    "kelaparan": peliharaan.kelaparan,
+                    "kesenangan": peliharaan.kesenangan,
+                    "kesehatan": peliharaan.kesehatan,
+                    "berat": peliharaan.berat,
+                    "energi": peliharaan.energi,
+                    "tahap_evolusi": peliharaan.tahap_evolusi,
+                }
+                peliharaan.histori_hari.tambah_hari(h, snapshot)
+                print(f"  📅 Snapshot hari ke-{h} tersimpan.")
+            hari_terakhir = hari_sekarang
 
         periode_kini = siklus_waktu.periode_sekarang()
         tampilkan_status(peliharaan, pemain, periode_kini.nama_periode)
@@ -81,6 +104,10 @@ def jalankan_game():
             tampilkan_riwayat(riwayat)
         elif pilihan == "4":
             tampilkan_info_pemain(pemain, peliharaan)
+        elif pilihan == "5":
+            tampilkan_riwayat_makanan(peliharaan)
+        elif pilihan == "6":
+            tampilkan_navigasi_histori(peliharaan)
         elif pilihan == "0":
             simpan_game(peliharaan, pemain, riwayat.ke_list())
             print(f"\n  Sampai jumpa! Jaga {peliharaan.nama} baik-baik ya. 👋")

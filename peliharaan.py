@@ -1,4 +1,5 @@
 from datetime import datetime
+from strukturdata import RiwayatMakananSLL, HistoriHariDLL
 
 
 class Peliharaan:
@@ -15,6 +16,9 @@ class Peliharaan:
         self.masih_hidup       = True
         self.terakhir_diupdate = datetime.now().isoformat()
 
+        self.riwayat_makanan = RiwayatMakananSLL()
+        self.histori_hari = HistoriHariDLL()
+
     def ke_dict(self):
         return {
             "nama"              : self.nama,
@@ -28,6 +32,8 @@ class Peliharaan:
             "tahap_evolusi"     : self.tahap_evolusi,
             "masih_hidup"       : self.masih_hidup,
             "terakhir_diupdate" : self.terakhir_diupdate,
+            "riwayat_makanan"   : self.riwayat_makanan.ke_dict_list(),
+            "histori_hari"      : self.histori_hari.ke_dict_list(),
         }
 
     @classmethod
@@ -42,6 +48,10 @@ class Peliharaan:
         p.tahap_evolusi     = data["tahap_evolusi"]
         p.masih_hidup       = data["masih_hidup"]
         p.terakhir_diupdate = data["terakhir_diupdate"]
+        if "riwayat_makanan" in data:
+            p.riwayat_makanan = RiwayatMakananSLL.dari_dict_list(data["riwayat_makanan"])
+        if "histori_hari" in data:
+            p.histori_hari = HistoriHariDLL.dari_dict_list(data["histori_hari"])
         return p
 
     def status_kelaparan(self):

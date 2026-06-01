@@ -64,3 +64,139 @@ class Queue:
     
     def kosongkan(self):
         self.data = []
+
+"""
+Single Linked List untuk mencatat makanan yang pernah diberikan
+menambahkan yang terbaru di depan agar konstan
+"""
+
+class NodeMakanan:
+    def __init__(self, nama_makanan: str, waktu_makan: str):
+        self.nama_makanan = nama_makanan
+        self.waktu_makan  = waktu_makan   # format "DD/MM HH:MM"
+        self.berikutnya   = None
+
+
+class RiwayatMakananSLL:
+
+    def __init__(self):
+        self.kepala = None
+        self.ukuran = 0
+
+    def tambah(self, nama_makanan: str, waktu_makan: str):
+        node = NodeMakanan(nama_makanan, waktu_makan)
+        node.berikutnya = self.kepala
+        self.kepala = node
+        self.ukuran += 1
+
+    def ke_list(self) -> list:
+        """Kembalikan list string dari yang terbaru ke terlama."""
+        hasil = []
+        node = self.kepala
+        while node:
+            hasil.append(f"{node.nama_makanan} ({node.waktu_makan})")
+            node = node.berikutnya
+        return hasil
+
+    def ke_dict_list(self) -> list:
+        """Untuk serialisasi JSON."""
+        hasil = []
+        node = self.kepala
+        while node:
+            hasil.append({
+                "nama_makanan": node.nama_makanan,
+                "waktu_makan": node.waktu_makan
+            })
+            node = node.berikutnya
+        return hasil
+
+    @classmethod
+    def dari_dict_list(cls, data: list):
+        sll = cls()
+        # data dari JSON biasanya terbaru di awal, jadi tambahkan urut
+        for item in data:
+            sll.tambah(item["nama_makanan"], item["waktu_makan"])
+        return sll
+    
+
+
+"""
+Double Linked List untuk menyimpan kondisi pet disaat itu setiap hari
+"""
+
+class NodeHari:
+    def __init__(self, hari_ke: int, snapshot: dict):
+        self.hari_ke = hari_ke
+        self.snapshot = snapshot   # dictionary berisi stat pet saat itu
+        self.sebelumnya = None
+        self.berikutnya = None
+
+
+class HistoriHariDLL:
+    def __init__(self):
+        self.kepala = None
+        self.ekor = None
+        self.kursor = None   # posisi saat ini (NodeHari)
+        self.ukuran = 0
+
+    def tambah_hari(self, hari_ke: int, snapshot: dict):
+        node = NodeHari(hari_ke, snapshot)
+        if self.ekor is None:
+            self.kepala = node
+            self.ekor = node
+        else:
+            self.ekor.berikutnya = node
+            node.sebelumnya = self.ekor
+            self.ekor = node
+        self.kursor = node   # kursor otomatis ke hari terbaru
+        self.ukuran += 1
+
+    def maju(self) -> dict | None:
+        """Pindah ke hari berikutnya. Kembalikan snapshot atau None."""
+        if self.kursor and self.kursor.berikutnya:
+            self.kursor = self.kursor.berikutnya
+            return self.kursor.snapshot
+        return None
+
+    def mundur(self) -> dict | None:
+        """Pindah ke hari sebelumnya."""
+        if self.kursor and self.kursor.sebelumnya:
+            self.kursor = self.kursor.sebelumnya
+            return self.kursor.snapshot
+        return None
+
+    def ke_awal(self) -> dict | None:
+        if self.kepala:
+            self.kursor = self.kepala
+            return self.kepala.snapshot
+        return None
+
+    def ke_akhir(self) -> dict | None:
+        if self.ekor:
+            self.kursor = self.ekor
+            return self.ekor.snapshot
+        return None
+
+    def info_kursor(self) -> tuple:
+        """Kembalikan (hari_ke, snapshot) dari kursor saat ini."""
+        if self.kursor:
+            return self.kursor.hari_ke, self.kursor.snapshot
+        return None, None
+
+    def ke_dict_list(self) -> list:
+        hasil = []
+        node = self.kepala
+        while node:
+            hasil.append({
+                "hari_ke": node.hari_ke,
+                "snapshot": node.snapshot
+            })
+            node = node.berikutnya
+        return hasil
+
+    @classmethod
+    def dari_dict_list(cls, data: list):
+        dll = cls()
+        for item in data:
+            dll.tambah_hari(item["hari_ke"], item["snapshot"])
+        return dll
