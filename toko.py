@@ -85,7 +85,7 @@ def beli_item(id_item: str, peliharaan: Peliharaan, pemain: Pemain, riwayat: Sta
     nama_item = item["nama"]
     if item["kategori"] == "makanan":
         peliharaan.kelaparan = min(100.0, peliharaan.kelaparan + item["pulihkan_lapar"])
-        peliharaan.berat    += item["tambah_berat"]
+        peliharaan.berat     = min(99.9, peliharaan.berat + item["tambah_berat"])
         if "bonus_senang" in item:
             peliharaan.kesenangan = min(100.0, peliharaan.kesenangan + item["bonus_senang"])
         if "pulihkan_sehat" in item:

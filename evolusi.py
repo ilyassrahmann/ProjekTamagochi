@@ -125,8 +125,7 @@ class GraphEvolusi:
         self._tambah_edge("Dewasa Bijak", "Tua Sehat", {"usia": 15, "kesehatan": 75})
         # Dari Dewasa Kurus ke Tua Kurus
         self._tambah_edge("Dewasa Kurus", "Tua Kurus", {"usia": 15})
-        # Dari Dewasa Sakit ke Arwah
-        self._tambah_edge("Dewasa Sakit", "Arwah", {"usia": 10, "kesehatan": 0})
+        # Arwah hanya dicapai saat kematian (lihat waktu._terapkan_kematian)
 
     def cek_evolusi(self, peliharaan) -> str | None:
         """

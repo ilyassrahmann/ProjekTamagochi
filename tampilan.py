@@ -2,7 +2,7 @@ import os
 from peliharaan import Peliharaan
 from pemain    import Pemain
 from strukturdata import Stack
-from sorting import bubble_sort_peliharaan
+from sorting import bubble_sort_peliharaan, bubble_sort_str
 from searching import linear_search_item, binary_search_leaderboard
 
 def bersihkan_layar():
@@ -110,6 +110,7 @@ def tampilkan_menu_utama():
     print("  [7] Leaderboard")
     print("  [8] Cari Item di Toko")
     print("  [9] Cari Peliharaan menurut Usia")
+    print("  [U] Undo Aksi Terakhir")
     print("  [0] Simpan & Keluar")
     print("─"*50)
     return input("  Pilih menu: ").strip()
@@ -130,7 +131,8 @@ def tampilkan_riwayat(riwayat: Stack):
     input("\n  Tekan Enter untuk kembali...")
 
 
-def tampilkan_info_pemain(pemain: Pemain, peliharaan: Peliharaan):
+def tampilkan_info_pemain(pemain: Pemain, peliharaan: Peliharaan,
+                         graph_evolusi=None, pohon_evolusi=None):
     bersihkan_layar()
     print("╔" + "═"*48 + "╗")
     print("║" + "  👤  INFO PEMAIN".center(48) + "║")
@@ -141,31 +143,57 @@ def tampilkan_info_pemain(pemain: Pemain, peliharaan: Peliharaan):
     print("╠" + "═"*48 + "╣")
     print("║" + "  🏅  Badge".ljust(48) + "║")
     if pemain.daftar_badge:
-        for badge in sorted(pemain.daftar_badge):
+        for badge in bubble_sort_str(list(pemain.daftar_badge), "naik"):
             print("║" + f"    • {badge}".ljust(48) + "║")
     else:
         print("║" + "    Belum ada badge.".ljust(48) + "║")
     print("╚" + "═"*48 + "╝")
+
+    if graph_evolusi:
+        print(f"\n  🌱 Jalur evolusi dari '{peliharaan.tahap_evolusi}':")
+        graph_evolusi.tampilkan_jalur(peliharaan.tahap_evolusi)
+    if pohon_evolusi:
+        print("\n  🌳 Pohon evolusi (Tree):")
+        pohon_evolusi.tampilkan_pohon()
+
     input("\n  Tekan Enter untuk kembali...")
 
 
-def tampilkan_layar_kematian(peliharaan: Peliharaan, pemain: Pemain):
+def konfirmasi_game_baru() -> bool:
+    """Tanya pemain apakah ingin memulai game baru."""
+    while True:
+        pilih = input("  Mulai game baru? [Y/n]: ").strip().lower()
+        if pilih in ("", "y", "ya"):
+            return True
+        if pilih in ("n", "tidak"):
+            return False
+        print("  Ketik Y untuk ya, atau n untuk keluar.")
+
+
+def tampilkan_layar_kematian(peliharaan: Peliharaan, pemain: Pemain) -> bool:
+    """
+    Tampilkan layar kematian.
+    Kembalikan True jika pemain ingin memulai game baru.
+    """
     bersihkan_layar()
     print("\n" + "="*48)
     print("  💀  PELIHARAAN MENINGGAL")
     print("="*48)
     print(f"\n  {peliharaan.nama} ({peliharaan.spesies}) telah pergi...")
+    if peliharaan.tahap_evolusi == "Arwah":
+        print("  Tahap akhir : Arwah 👻")
     print(f"  Usia terakhir : {peliharaan.usia:.1f} hari")
     print(f"  Koin tersisa  : {pemain.koin}")
     print(f"\n  Terima kasih sudah merawat {peliharaan.nama}.")
-    print("\n  Game akan ditutup. Data terakhir disimpan.")
+    print("  Data terakhir sudah disimpan.")
     print("="*48 + "\n")
+    return konfirmasi_game_baru()
 
 
 def tampilkan_layar_sambutan():
     bersihkan_layar()
     print("╔" + "═"*48 + "╗")
-    print("║" + "  🐾  SELAMAT DATANG DI TAMAGOTCHI CLI".center(47) + "║")
+    print("║" + "  🐾  SELAMAT DATANG DI TAMAGOTCHI CLI".center(48) + "║")
     print("╚" + "═"*48 + "╝")
 
 
@@ -337,3 +365,4 @@ def tampilkan_pencarian_pet_usia(peliharaan_sekarang: Peliharaan, semua_pet: lis
         print(f"    Usia      : {pet.usia:.1f} hari")
         print(f"    Kesehatan : {pet.kesehatan:.1f}")
     input("\n  Tekan Enter untuk kembali...")
+

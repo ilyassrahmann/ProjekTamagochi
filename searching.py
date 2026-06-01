@@ -2,8 +2,7 @@
 """
 Algoritma searching: Linear Search dan Binary Search
 """
-from peliharaan import Peliharaan
-from toko import DAFTAR_ITEM   # dictionary item toko
+from toko import DAFTAR_ITEM
 
 def linear_search_item(nama_kata_kunci: str) -> list:
     """

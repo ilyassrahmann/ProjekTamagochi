@@ -114,7 +114,7 @@ class RiwayatMakananSLL:
     def dari_dict_list(cls, data: list):
         sll = cls()
         # data dari JSON biasanya terbaru di awal, jadi tambahkan urut
-        for item in data:
+        for item in reversed(data):
             sll.tambah(item["nama_makanan"], item["waktu_makan"])
         return sll
     
@@ -183,6 +183,15 @@ class HistoriHariDLL:
             return self.kursor.hari_ke, self.kursor.snapshot
         return None, None
 
+    def hari_sudah_ada(self, hari_ke: int) -> bool:
+        """Cek apakah snapshot untuk hari_ke sudah tercatat."""
+        node = self.kepala
+        while node:
+            if node.hari_ke == hari_ke:
+                return True
+            node = node.berikutnya
+        return False
+
     def ke_dict_list(self) -> list:
         hasil = []
         node = self.kepala
@@ -197,6 +206,6 @@ class HistoriHariDLL:
     @classmethod
     def dari_dict_list(cls, data: list):
         dll = cls()
-        for item in reversed(data):
+        for item in data: 
             dll.tambah_hari(item["hari_ke"], item["snapshot"])
         return dll
