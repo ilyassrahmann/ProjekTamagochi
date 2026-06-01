@@ -43,9 +43,10 @@ def mulai_game_baru() -> tuple:
 
 
 def buat_snapshot_hari(peliharaan: Peliharaan, hari_ke: int) -> dict:
-    """Snapshot kondisi pet; usia dicatat sesuai nomor hari."""
+    """Snapshot kondisi pet saat penutupan hari ke-n."""
     return {
-        "usia": float(hari_ke),
+        "usia": peliharaan.usia,
+        "hari_ke": hari_ke,
         "kelaparan": peliharaan.kelaparan,
         "kesenangan": peliharaan.kesenangan,
         "kesehatan": peliharaan.kesehatan,
@@ -138,19 +139,9 @@ def muat_atau_buat_sessi(siklus_waktu: SiklusWaktu):
         return None
 
     input("\n  Tekan Enter untuk melanjutkan...")
-    hari_terakhir = max(
-        math.floor(peliharaan.usia),
-        _hari_tertinggi_dari_histori(peliharaan),
-    )
+    hari_terakhir = peliharaan.histori_hari.hari_tertinggi()
+    hari_terakhir = catat_hari_baru(peliharaan, pemain, hari_terakhir)
     return peliharaan, pemain, riwayat, hari_terakhir
-
-
-def _hari_tertinggi_dari_histori(peliharaan: Peliharaan) -> int:
-    """Ambil nomor hari tertinggi yang sudah tersimpan di DLL."""
-    terbesar = 0
-    for item in peliharaan.histori_hari.ke_dict_list():
-        terbesar = max(terbesar, item["hari_ke"])
-    return terbesar
 
 
 def jalankan_loop_utama(peliharaan: Peliharaan, pemain: Pemain, riwayat: Stack,
@@ -201,10 +192,9 @@ def jalankan_loop_utama(peliharaan: Peliharaan, pemain: Pemain, riwayat: Stack,
         elif pilihan in ("U", "u"):
             aksi = riwayat.pop()
             if aksi:
-                print(f"  ↩️  Aksi dihapus dari riwayat: '{aksi}'")
-                print("  (Catatan: perubahan stat tidak di-rollback)")
+                print(f"  🗑️  Entri log dihapus: '{aksi}'")
             else:
-                print("  Tidak ada aksi untuk di-undo.")
+                print("  Log aksi kosong, tidak ada entri untuk dihapus.")
         elif pilihan == "0":
             simpan_game(peliharaan, pemain, riwayat.ke_list())
             print(f"\n  Sampai jumpa! Jaga {peliharaan.nama} baik-baik ya. 👋")

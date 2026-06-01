@@ -30,8 +30,8 @@ class SiklusWaktu:
 
         self.kepala = pagi
 
-    def _periode_untuk_jam(self, jam: int) -> NodeWaktu:
-        """Kembalikan periode yang aktif pada jam (0-23)."""
+    def periode_pada_jam(self, jam: int) -> NodeWaktu:
+        """API publik: periode aktif untuk jam 0–23."""
         node = self.kepala
         for _ in range(3):
             if node.jam_mulai <= node.jam_selesai:
@@ -43,9 +43,33 @@ class SiklusWaktu:
             node = node.berikutnya
         return self.kepala
 
-    def periode_sekarang(self):
+    def periode_sekarang(self) -> NodeWaktu:
         """Kembalikan NodeWaktu yang sesuai dengan jam sistem saat ini."""
-        return self._periode_untuk_jam(datetime.now().hour)
+        return self.periode_pada_jam(datetime.now().hour)
+
+    def simulasikan_pembusukan(self, peliharaan, waktu_mulai: datetime,
+                               waktu_selesai: datetime) -> tuple:
+        """
+        Simulasi decay per jam antara dua waktu.
+        Kembalikan (periode_terakhir, jam_berlalu).
+        """
+        jam_berlalu = (waktu_selesai - waktu_mulai).total_seconds() / 3600
+        if jam_berlalu < 0.01:
+            return self.periode_sekarang(), 0.0
+
+        waktu_sim = waktu_mulai
+        sisa_jam = jam_berlalu
+        periode_terakhir = self.periode_pada_jam(waktu_sim.hour)
+
+        while sisa_jam > 0.001 and peliharaan.masih_hidup:
+            langkah = min(1.0, sisa_jam)
+            periode_terakhir = self.periode_pada_jam(waktu_sim.hour)
+            if not _terapkan_pembusukan_jam(peliharaan, periode_terakhir, langkah):
+                break
+            waktu_sim += timedelta(hours=langkah)
+            sisa_jam -= langkah
+
+        return periode_terakhir, jam_berlalu
 
 
 LAJU_PER_JAM = {
@@ -96,7 +120,6 @@ def _terapkan_kematian(peliharaan):
 def hitung_pembusukan(peliharaan, siklus: SiklusWaktu, tampilkan_log: bool = True):
     """
     Hitung perubahan stat berdasarkan waktu nyata sejak terakhir_diupdate.
-    Simulasi per jam agar multiplier periode (Pagi/Siang/Malam) akurat.
     """
     sekarang = datetime.now()
     try:
@@ -109,21 +132,11 @@ def hitung_pembusukan(peliharaan, siklus: SiklusWaktu, tampilkan_log: bool = Tru
         peliharaan.terakhir_diupdate = sekarang.isoformat()
         return
 
-    jam_berlalu = (sekarang - terakhir).total_seconds() / 3600
+    periode_terakhir, jam_berlalu = siklus.simulasikan_pembusukan(
+        peliharaan, terakhir, sekarang,
+    )
     if jam_berlalu < 0.01:
         return
-
-    waktu_sim = terakhir
-    sisa_jam = jam_berlalu
-    periode_terakhir = siklus.periode_sekarang()
-
-    while sisa_jam > 0.001 and peliharaan.masih_hidup:
-        langkah = min(1.0, sisa_jam)
-        periode_terakhir = siklus._periode_untuk_jam(waktu_sim.hour)
-        if not _terapkan_pembusukan_jam(peliharaan, periode_terakhir, langkah):
-            break
-        waktu_sim += timedelta(hours=langkah)
-        sisa_jam -= langkah
 
     peliharaan.terakhir_diupdate = sekarang.isoformat()
 

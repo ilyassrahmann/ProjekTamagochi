@@ -48,10 +48,10 @@ class Peliharaan:
         p.tahap_evolusi     = data["tahap_evolusi"]
         p.masih_hidup       = data["masih_hidup"]
         p.terakhir_diupdate = data["terakhir_diupdate"]
-        if "riwayat_makanan" in data:
-            p.riwayat_makanan = RiwayatMakananSLL.dari_dict_list(data["riwayat_makanan"])
-        if "histori_hari" in data:
-            p.histori_hari = HistoriHariDLL.dari_dict_list(data["histori_hari"])
+        p.riwayat_makanan = RiwayatMakananSLL.dari_dict_list(
+            data.get("riwayat_makanan", []))
+        p.histori_hari = HistoriHariDLL.dari_dict_list(
+            data.get("histori_hari", []))
         return p
 
     def status_kelaparan(self):

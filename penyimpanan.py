@@ -4,16 +4,31 @@ from peliharaan import Peliharaan
 from pemain    import Pemain
 
 NAMA_FILE_SAVE = "data_save.json"
+SAVE_VERSION   = 1
+
+
+def _migrasi_save(data: dict) -> dict:
+    """
+    Normalisasi save lama: pastikan riwayat_makanan & histori_hari ada
+    di dalam blok peliharaan (save v0 tidak punya save_version).
+    """
+    pel = data.setdefault("peliharaan", {})
+    pel.setdefault("riwayat_makanan", [])
+    pel.setdefault("histori_hari", [])
+    data["save_version"] = SAVE_VERSION
+    return data
+
 
 def simpan_game(peliharaan: Peliharaan, pemain: Pemain, riwayat_aksi: list):
     """
     Tulis state game ke file JSON.
-    riwayat_aksi adalah list of string (log aksi yang sudah dilakukan).
+    riwayat_makanan & histori_hari diserialisasi lewat peliharaan.ke_dict().
     """
     data = {
-        "peliharaan"  : peliharaan.ke_dict(),
-        "pemain"      : pemain.ke_dict(),
-        "riwayat_aksi": riwayat_aksi,
+        "save_version" : SAVE_VERSION,
+        "peliharaan"   : peliharaan.ke_dict(),
+        "pemain"       : pemain.ke_dict(),
+        "riwayat_aksi" : riwayat_aksi,
     }
     try:
         with open(NAMA_FILE_SAVE, "w", encoding="utf-8") as f:
@@ -23,10 +38,16 @@ def simpan_game(peliharaan: Peliharaan, pemain: Pemain, riwayat_aksi: list):
         print(f"  ⚠️  Gagal menyimpan game: {e}")
 
 
-def hapus_save():
-    """Hapus file save jika ada (untuk memulai game baru)."""
-    if os.path.exists(NAMA_FILE_SAVE):
+def hapus_save() -> bool:
+    """Hapus file save jika ada. Kembalikan True jika berhasil atau file tidak ada."""
+    if not os.path.exists(NAMA_FILE_SAVE):
+        return True
+    try:
         os.remove(NAMA_FILE_SAVE)
+        return True
+    except OSError as e:
+        print(f"  ⚠️  Gagal menghapus save: {e}")
+        return False
 
 
 def muat_game():
@@ -43,6 +64,8 @@ def muat_game():
 
         if "peliharaan" not in data or "pemain" not in data:
             raise KeyError("struktur save tidak lengkap")
+
+        data = _migrasi_save(data)
 
         peliharaan   = Peliharaan.dari_dict(data["peliharaan"])
         pemain       = Pemain.dari_dict(data["pemain"])

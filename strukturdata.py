@@ -2,8 +2,7 @@
 
 class Stack:
     """
-    Stack (LIFO) — digunakan untuk riwayat aksi dan fitur undo.
-    Push = tambah ke atas, Pop = ambil dari atas.
+    Stack (LIFO) — log aksi (push = catat, pop = hapus entri terakhir, bukan rollback stat).
     """
     def __init__(self):
         self._data = []
@@ -138,8 +137,11 @@ class HistoriHariDLL:
         self.ekor = None
         self.kursor = None   # posisi saat ini (NodeHari)
         self.ukuran = 0
+        self._hari_tercatat = set()
 
     def tambah_hari(self, hari_ke: int, snapshot: dict):
+        if hari_ke in self._hari_tercatat:
+            return
         node = NodeHari(hari_ke, snapshot)
         if self.ekor is None:
             self.kepala = node
@@ -148,8 +150,9 @@ class HistoriHariDLL:
             self.ekor.berikutnya = node
             node.sebelumnya = self.ekor
             self.ekor = node
-        self.kursor = node   # kursor otomatis ke hari terbaru
+        self.kursor = node
         self.ukuran += 1
+        self._hari_tercatat.add(hari_ke)
 
     def maju(self) -> dict | None:
         """Pindah ke hari berikutnya. Kembalikan snapshot atau None."""
@@ -184,13 +187,12 @@ class HistoriHariDLL:
         return None, None
 
     def hari_sudah_ada(self, hari_ke: int) -> bool:
-        """Cek apakah snapshot untuk hari_ke sudah tercatat."""
-        node = self.kepala
-        while node:
-            if node.hari_ke == hari_ke:
-                return True
-            node = node.berikutnya
-        return False
+        """Cek apakah snapshot untuk hari_ke sudah tercatat (O(1))."""
+        return hari_ke in self._hari_tercatat
+
+    def hari_tertinggi(self) -> int:
+        """Nomor hari tertinggi yang sudah tercatat (0 jika kosong)."""
+        return max(self._hari_tercatat) if self._hari_tercatat else 0
 
     def ke_dict_list(self) -> list:
         hasil = []
@@ -206,6 +208,6 @@ class HistoriHariDLL:
     @classmethod
     def dari_dict_list(cls, data: list):
         dll = cls()
-        for item in data: 
+        for item in sorted(data, key=lambda x: x["hari_ke"]):
             dll.tambah_hari(item["hari_ke"], item["snapshot"])
         return dll
