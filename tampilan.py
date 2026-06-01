@@ -2,6 +2,8 @@ import os
 from peliharaan import Peliharaan
 from pemain    import Pemain
 from strukturdata import Stack
+from sorting import bubble_sort_peliharaan
+from searching import linear_search_item, binary_search_leaderboard
 
 def bersihkan_layar():
     os.system("cls" if os.name == "nt" else "clear")
@@ -100,6 +102,9 @@ def tampilkan_menu_utama():
     print("  [4] Info & Badge")
     print("  [5] Riwayat Makanan")
     print("  [6] Histori Hari")
+    print("  [7] Leaderboard")
+    print("  [8] Cari Item di Toko")
+    print("  [9] Cari Peliharaan menurut Usia")
     print("  [0] Simpan & Keluar")
     print("─"*50)
     return input("  Pilih menu: ").strip()
@@ -223,3 +228,107 @@ def tampilkan_navigasi_histori(peliharaan: Peliharaan):
             break
         else:
             input("  Pilihan tidak valid. Tekan Enter...")
+
+def tampilkan_leaderboard(peliharaan_sekarang: Peliharaan, semua_pet: list = None):
+    """
+    Tampilkan leaderboard menggunakan bubble sort.
+    Karena game hanya punya satu peliharaan, kita tetap buat demo dengan 
+    menampilkan peliharaan saat ini dan beberapa dummy.
+    Untuk keperluan demo, kita buat list berisi peliharaan sekarang + dummy.
+    """
+    if semua_pet is None:
+        # Buat dummy pet lain untuk menunjukkan sorting
+        from peliharaan import Peliharaan
+        dummy1 = Peliharaan("Rex", "Anjing")
+        dummy1.usia = 12.5
+        dummy1.kesehatan = 85.0
+        dummy2 = Peliharaan("Luna", "Kucing")
+        dummy2.usia = 5.2
+        dummy2.kesehatan = 95.0
+        dummy3 = Peliharaan("Slimey", "Slime")
+        dummy3.usia = 20.0
+        dummy3.kesehatan = 60.0
+        semua_pet = [peliharaan_sekarang, dummy1, dummy2, dummy3]
+    
+    bersihkan_layar()
+    print("╔" + "═"*48 + "╗")
+    print("║" + "  🏆  LEADERBOARD (Bubble Sort)".center(48) + "║")
+    print("╠" + "═"*48 + "╣")
+    
+    print("\n  Urutan berdasarkan usia (tertua ke termuda):")
+    urut_usia = bubble_sort_peliharaan(semua_pet, "usia", "turun")
+    for i, pet in enumerate(urut_usia, 1):
+        print(f"    {i}. {pet.nama} ({pet.spesies}) - Usia: {pet.usia:.1f} hari")
+    
+    print("\n  Urutan berdasarkan kesehatan (tertinggi ke terendah):")
+    urut_kesehatan = bubble_sort_peliharaan(semua_pet, "kesehatan", "turun")
+    for i, pet in enumerate(urut_kesehatan, 1):
+        print(f"    {i}. {pet.nama} ({pet.spesies}) - Kesehatan: {pet.kesehatan:.1f}")
+    
+    print("\n" + "╚" + "═"*48 + "╝")
+    input("\n  Tekan Enter untuk kembali...")
+
+
+def tampilkan_pencarian_item():
+    """Menu linear search untuk mencari item di toko berdasarkan nama."""
+    bersihkan_layar()
+    print("╔" + "═"*48 + "╗")
+    print("║" + "  🔍  CARI ITEM DI TOKO (Linear Search)".center(48) + "║")
+    print("╚" + "═"*48 + "╝")
+    kata = input("\n  Masukkan kata kunci nama item: ").strip()
+    if not kata:
+        print("  Kata kunci kosong.")
+        input("\n  Tekan Enter...")
+        return
+    
+    hasil = linear_search_item(kata)
+    if not hasil:
+        print(f"  Tidak ada item dengan nama mengandung '{kata}'.")
+    else:
+        print(f"\n  Ditemukan {len(hasil)} item:")
+        for id_item, item in hasil:
+            print(f"    {id_item}: {item['nama']} - {item['harga']}🪙")
+    input("\n  Tekan Enter untuk kembali...")
+
+
+def tampilkan_pencarian_pet_usia(peliharaan_sekarang: Peliharaan, semua_pet: list = None):
+    """
+    Binary search pada leaderboard yang sudah diurutkan berdasarkan usia (naik).
+    Mencari pet dengan usia tertentu.
+    """
+    if semua_pet is None:
+        from peliharaan import Peliharaan
+        dummy1 = Peliharaan("Rex", "Anjing")
+        dummy1.usia = 12.5
+        dummy2 = Peliharaan("Luna", "Kucing")
+        dummy2.usia = 5.2
+        dummy3 = Peliharaan("Slimey", "Slime")
+        dummy3.usia = 20.0
+        semua_pet = [peliharaan_sekarang, dummy1, dummy2, dummy3]
+    
+    # Urutkan berdasarkan usia (naik) untuk binary search
+    urut_usia_naik = bubble_sort_peliharaan(semua_pet, "usia", "naik")
+    
+    bersihkan_layar()
+    print("╔" + "═"*48 + "╗")
+    print("║" + "  🔎  BINARY SEARCH PELIHARAAN BERDASARKAN USIA".center(48) + "║")
+    print("╚" + "═"*48 + "╝")
+    
+    try:
+        target = float(input("\n  Masukkan usia yang dicari (dalam hari): ").strip())
+    except ValueError:
+        print("  Masukkan angka yang valid.")
+        input("\n  Tekan Enter...")
+        return
+    
+    index = binary_search_leaderboard(urut_usia_naik, target)
+    if index == -1:
+        print(f"  Tidak ada peliharaan dengan usia {target:.1f} hari (toleransi ±0.01).")
+    else:
+        pet = urut_usia_naik[index]
+        print(f"\n  Ditemukan pada urutan ke-{index+1}:")
+        print(f"    Nama      : {pet.nama}")
+        print(f"    Spesies   : {pet.spesies}")
+        print(f"    Usia      : {pet.usia:.1f} hari")
+        print(f"    Kesehatan : {pet.kesehatan:.1f}")
+    input("\n  Tekan Enter untuk kembali...")

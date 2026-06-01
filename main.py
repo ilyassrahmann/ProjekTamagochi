@@ -15,6 +15,9 @@ from tampilan     import (
     tampilkan_layar_sambutan,
     tampilkan_navigasi_histori,
     tampilkan_riwayat_makanan,
+    tampilkan_leaderboard,
+    tampilkan_pencarian_item,
+    tampilkan_pencarian_pet_usia,
     pilih_spesies,
 )
 
@@ -108,6 +111,12 @@ def jalankan_game():
             tampilkan_riwayat_makanan(peliharaan)
         elif pilihan == "6":
             tampilkan_navigasi_histori(peliharaan)
+        elif pilihan == "7":
+            tampilkan_leaderboard(peliharaan)
+        elif pilihan == "8":
+            tampilkan_pencarian_item()
+        elif pilihan == "9":
+            tampilkan_pencarian_pet_usia(peliharaan)
         elif pilihan == "0":
             simpan_game(peliharaan, pemain, riwayat.ke_list())
             print(f"\n  Sampai jumpa! Jaga {peliharaan.nama} baik-baik ya. 👋")

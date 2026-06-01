@@ -63,7 +63,7 @@ class Queue:
         return list(self._data)
     
     def kosongkan(self):
-        self.data = []
+        self._data = []
 
 """
 Single Linked List untuk mencatat makanan yang pernah diberikan
@@ -197,6 +197,6 @@ class HistoriHariDLL:
     @classmethod
     def dari_dict_list(cls, data: list):
         dll = cls()
-        for item in data:
+        for item in reversed(data):
             dll.tambah_hari(item["hari_ke"], item["snapshot"])
         return dll

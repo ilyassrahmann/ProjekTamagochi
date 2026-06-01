@@ -6,7 +6,7 @@ class Peliharaan:
     def __init__(self, nama, spesies):
         self.nama              = nama
         self.spesies           = spesies
-        self.usia              = 0          
+        self.usia              = 0.0          
         self.kelaparan         = 80.0       
         self.kesenangan        = 70.0       
         self.kesehatan         = 100.0      
