@@ -1,6 +1,6 @@
 from peliharaan   import Peliharaan
 from pemain       import Pemain
-from waktu        import SiklusWaktu, hitung_pembusukan, percepat_waktu
+from waktu        import SiklusWaktu, hitung_pembusukan, percepat_waktu, percepat_waktu
 from penyimpanan  import simpan_game, muat_game, hapus_save
 from toko         import tampilkan_menu_toko
 from minigame     import tampilkan_menu_minigame
