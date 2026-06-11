@@ -71,9 +71,9 @@ class SiklusWaktu:
 
 
 LAJU_PER_JAM = {
-    "kelaparan" : -10.0,
-    "kesenangan":  -5.0,
-    "energi"    :   3.0,
+    "kelaparan" : -8.0,
+    "kesenangan":  -4.0,
+    "energi"    :   4.0,
 }
 LAJU_KESEHATAN_LAPAR    = -15.0
 LAJU_KESEHATAN_NORMAL   =   1.0
